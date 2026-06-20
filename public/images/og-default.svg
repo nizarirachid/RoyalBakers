@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1B4332"/>
+  <!-- Border pattern -->
+  <rect x="0" y="0" width="1200" height="15" fill="#C9A84C" opacity="0.8"/>
+  <rect x="0" y="615" width="1200" height="15" fill="#C9A84C" opacity="0.8"/>
+  <rect x="0" y="0" width="15" height="630" fill="#C9A84C" opacity="0.8"/>
+  <rect x="1185" y="0" width="15" height="630" fill="#C9A84C" opacity="0.8"/>
+  <!-- Zellige diamond pattern -->
+  <polygon points="600,150 750,315 600,480 450,315" fill="none" stroke="#C9A84C" stroke-width="2" opacity="0.4"/>
+  <polygon points="600,180 720,315 600,450 480,315" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.3"/>
+  <!-- Central ornament -->
+  <circle cx="600" cy="315" r="100" fill="none" stroke="#C9A84C" stroke-width="2" opacity="0.6"/>
+  <circle cx="600" cy="315" r="80" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.4"/>
+  <!-- Arabic calligraphy-style decoration -->
+  <path d="M 520 315 Q 540 290 560 295 Q 580 300 600 295 Q 620 290 640 295 Q 660 300 680 295"
+        fill="none" stroke="#C9A84C" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 540 335 Q 570 350 600 350 Q 630 350 660 335"
+        fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round"/>
+  <!-- Text -->
+  <text x="600" y="230" text-anchor="middle" font-family="serif" font-size="48" fill="#C9A84C" font-weight="bold">النزاري</text>
+  <text x="600" y="530" text-anchor="middle" font-family="serif" font-size="28" fill="#F5F0E8" opacity="0.8">NIZARI • فن الخط العربي</text>
+  <!-- Corner zellige motifs -->
+  <polygon points="50,50 80,50 65,75" fill="#C9A84C" opacity="0.5"/>
+  <polygon points="1150,50 1120,50 1135,75" fill="#C9A84C" opacity="0.5"/>
+  <polygon points="50,580 80,580 65,555" fill="#C9A84C" opacity="0.5"/>
+  <polygon points="1150,580 1120,580 1135,555" fill="#C9A84C" opacity="0.5"/>
+</svg>
