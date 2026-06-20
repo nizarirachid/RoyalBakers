@@ -6,6 +6,20 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+    {{-- A11Y + Dark mode init (before CSS to prevent flash) --}}
+    <script>
+    (function(){
+        var t = localStorage.getItem('nizari-theme') || 'light';
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        var a = {};
+        try { a = JSON.parse(localStorage.getItem('nizari-a11y') || '{}'); } catch(e){}
+        if (a.contrast) document.documentElement.setAttribute('data-contrast', 'high');
+        if (a.textSize) document.documentElement.setAttribute('data-text', a.textSize);
+        if (a.links)    document.documentElement.setAttribute('data-links', 'underline');
+        if (a.cursor)   document.documentElement.setAttribute('data-cursor', 'large');
+    })();
+    </script>
+
     {{-- SEO --}}
     <title>@yield('title', __('messages.hero_title') . ' | ' . config('app.name'))</title>
     <meta name="description" content="@yield('description', __('messages.hero_description'))">
@@ -69,8 +83,17 @@
 </head>
 <body class="locale-{{ app()->getLocale() }}">
 
+{{-- Skip to main content (screen readers & keyboard) --}}
+<a href="#main-content" class="skip-link">
+    {{ app()->getLocale() === 'ar' ? 'تخطى إلى المحتوى الرئيسي' : (app()->getLocale() === 'fr' ? 'Aller au contenu principal' : 'Skip to main content') }}
+</a>
+
+{{-- Accessibility announcement region for screen readers --}}
+<div id="a11y-announce" aria-live="polite" aria-atomic="true" class="sr-only" role="status"></div>
+
 {{-- Navigation --}}
-<nav class="navbar navbar-expand-lg fixed-top navbar-nizari" id="mainNav">
+<nav class="navbar navbar-expand-lg fixed-top navbar-nizari" id="mainNav"
+     role="navigation" aria-label="{{ app()->getLocale() === 'ar' ? 'القائمة الرئيسية' : 'Main navigation' }}">
     <div class="container">
         {{-- Brand --}}
         <a class="navbar-brand" href="{{ route('home') }}">
@@ -134,16 +157,31 @@
             <div class="navbar-nav ms-auto align-items-center gap-2">
                 {{-- Language Switcher --}}
                 <div class="dropdown lang-switcher">
-                    <button class="btn btn-sm btn-outline-gold dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fas fa-globe"></i>
+                    <button class="btn btn-sm btn-outline-gold dropdown-toggle" data-bs-toggle="dropdown"
+                            aria-label="{{ __('messages.language') }}">
+                        <i class="fas fa-globe" aria-hidden="true"></i>
                         {{ strtoupper(app()->getLocale()) }}
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ route('locale.set', 'ar') }}">🇲🇦 العربية</a></li>
-                        <li><a class="dropdown-item" href="{{ route('locale.set', 'fr') }}">🇫🇷 Français</a></li>
-                        <li><a class="dropdown-item" href="{{ route('locale.set', 'en') }}">🇬🇧 English</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end" role="menu">
+                        <li><a class="dropdown-item" href="{{ route('locale.set', 'ar') }}" role="menuitem" lang="ar">🇲🇦 العربية</a></li>
+                        <li><a class="dropdown-item" href="{{ route('locale.set', 'fr') }}" role="menuitem" lang="fr">🇫🇷 Français</a></li>
+                        <li><a class="dropdown-item" href="{{ route('locale.set', 'en') }}" role="menuitem" lang="en">🇬🇧 English</a></li>
                     </ul>
                 </div>
+
+                {{-- Dark / Light Mode Toggle --}}
+                <button id="themeToggle" class="btn btn-sm btn-outline-gold navbar-icon-btn"
+                        aria-label="{{ app()->getLocale() === 'ar' ? 'تبديل الوضع الداكن/الفاتح' : 'Toggle dark/light mode' }}"
+                        title="{{ app()->getLocale() === 'ar' ? 'الوضع الداكن / الفاتح' : 'Dark / Light mode' }}">
+                    <i class="fas fa-moon" id="themeIcon" aria-hidden="true"></i>
+                </button>
+
+                {{-- Fullscreen Toggle --}}
+                <button id="fullscreenToggle" class="btn btn-sm btn-outline-gold navbar-icon-btn"
+                        aria-label="{{ app()->getLocale() === 'ar' ? 'ملء الشاشة' : 'Fullscreen' }}"
+                        title="{{ app()->getLocale() === 'ar' ? 'ملء الشاشة' : 'Fullscreen' }}">
+                    <i class="fas fa-expand" id="fullscreenIcon" aria-hidden="true"></i>
+                </button>
 
                 @auth
                     <div class="dropdown">
@@ -200,12 +238,12 @@
 @endif
 
 {{-- Main Content --}}
-<main>
+<main id="main-content" role="main" tabindex="-1">
     @yield('content')
 </main>
 
 {{-- Footer --}}
-<footer class="footer-nizari">
+<footer class="footer-nizari" role="contentinfo" aria-label="{{ app()->getLocale() === 'ar' ? 'تذييل الموقع' : 'Site footer' }}">
     <div class="footer-top">
         <div class="container">
             <div class="row g-4">
@@ -330,9 +368,96 @@
 </div>
 
 {{-- Scroll to Top --}}
-<button class="scroll-top" id="scrollTop" title="العودة للأعلى">
-    <i class="fas fa-chevron-up"></i>
+<button class="scroll-top" id="scrollTop"
+        aria-label="{{ app()->getLocale() === 'ar' ? 'العودة للأعلى' : 'Back to top' }}">
+    <i class="fas fa-chevron-up" aria-hidden="true"></i>
 </button>
+
+{{-- ══ Accessibility Toolbar ══════════════════════════════════ --}}
+<div id="a11y-toolbar" role="complementary"
+     aria-label="{{ app()->getLocale() === 'ar' ? 'شريط إمكانية الوصول' : 'Accessibility toolbar' }}">
+
+    {{-- Toggle Button --}}
+    <button id="a11y-toggle" class="a11y-main-btn"
+            aria-expanded="false" aria-controls="a11y-panel"
+            aria-label="{{ app()->getLocale() === 'ar' ? 'أدوات إمكانية الوصول' : 'Accessibility tools' }}">
+        <i class="fas fa-universal-access" aria-hidden="true"></i>
+    </button>
+
+    {{-- Panel --}}
+    <div id="a11y-panel" class="a11y-panel" hidden role="group"
+         aria-label="{{ app()->getLocale() === 'ar' ? 'خيارات إمكانية الوصول' : 'Accessibility options' }}">
+
+        <p class="a11y-panel-title">
+            <i class="fas fa-universal-access" aria-hidden="true"></i>
+            {{ app()->getLocale() === 'ar' ? 'إمكانية الوصول' : 'Accessibility' }}
+        </p>
+
+        {{-- Dark / Light --}}
+        <button class="a11y-btn" id="a11yTheme"
+                aria-pressed="false"
+                aria-label="{{ app()->getLocale() === 'ar' ? 'الوضع الداكن' : 'Dark mode' }}">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'داكن' : 'Dark' }}</span>
+        </button>
+
+        {{-- High Contrast --}}
+        <button class="a11y-btn" id="a11yContrast"
+                aria-pressed="false"
+                aria-label="{{ app()->getLocale() === 'ar' ? 'تباين عالٍ' : 'High contrast' }}">
+            <i class="fas fa-circle-half-stroke" aria-hidden="true"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تباين عالٍ' : 'High contrast' }}</span>
+        </button>
+
+        {{-- Text Size --}}
+        <div class="a11y-group-label">{{ app()->getLocale() === 'ar' ? 'حجم الخط' : 'Text size' }}</div>
+        <div class="a11y-text-row" role="group" aria-label="{{ app()->getLocale() === 'ar' ? 'حجم الخط' : 'Text size' }}">
+            <button class="a11y-btn a11y-text-btn" id="a11yTextNormal"
+                    aria-label="{{ app()->getLocale() === 'ar' ? 'حجم الخط الافتراضي' : 'Default text size' }}"
+                    aria-pressed="true">A</button>
+            <button class="a11y-btn a11y-text-btn" id="a11yTextLg"
+                    aria-label="{{ app()->getLocale() === 'ar' ? 'حجم الخط كبير' : 'Large text' }}"
+                    aria-pressed="false" style="font-size:1.1rem;">A+</button>
+            <button class="a11y-btn a11y-text-btn" id="a11yTextXl"
+                    aria-label="{{ app()->getLocale() === 'ar' ? 'حجم الخط كبير جداً' : 'Extra large text' }}"
+                    aria-pressed="false" style="font-size:1.3rem;">A++</button>
+        </div>
+
+        {{-- Underline Links --}}
+        <button class="a11y-btn" id="a11yLinks"
+                aria-pressed="false"
+                aria-label="{{ app()->getLocale() === 'ar' ? 'تسطير الروابط' : 'Underline links' }}">
+            <i class="fas fa-underline" aria-hidden="true"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'تسطير الروابط' : 'Underline links' }}</span>
+        </button>
+
+        {{-- Large Cursor --}}
+        <button class="a11y-btn" id="a11yCursor"
+                aria-pressed="false"
+                aria-label="{{ app()->getLocale() === 'ar' ? 'مؤشر كبير' : 'Large cursor' }}">
+            <i class="fas fa-mouse-pointer" aria-hidden="true"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'مؤشر كبير' : 'Large cursor' }}</span>
+        </button>
+
+        {{-- Reading Guide --}}
+        <button class="a11y-btn" id="a11yGuide"
+                aria-pressed="false"
+                aria-label="{{ app()->getLocale() === 'ar' ? 'دليل القراءة' : 'Reading guide' }}">
+            <i class="fas fa-grip-lines" aria-hidden="true"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'دليل القراءة' : 'Reading guide' }}</span>
+        </button>
+
+        {{-- Reset --}}
+        <button class="a11y-btn a11y-reset" id="a11yReset"
+                aria-label="{{ app()->getLocale() === 'ar' ? 'إعادة الضبط' : 'Reset all' }}">
+            <i class="fas fa-rotate-left" aria-hidden="true"></i>
+            <span>{{ app()->getLocale() === 'ar' ? 'إعادة الضبط' : 'Reset' }}</span>
+        </button>
+    </div>
+</div>
+
+{{-- Reading Guide Line --}}
+<div id="reading-guide" class="reading-guide" aria-hidden="true" hidden></div>
 
 {{-- Bootstrap 5 --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
