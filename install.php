@@ -9,7 +9,9 @@ define('BASE', realpath(__DIR__));
 define('ENV_FILE', BASE . '/.env');
 define('ENV_EXAMPLE', BASE . '/.env.example');
 
-error_reporting(0);
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
 session_start();
 
 if (file_exists(ENV_FILE) && !isset($_GET['force'])) {

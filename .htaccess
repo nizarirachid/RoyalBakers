@@ -1,11 +1,15 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /
 
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     RewriteCond %{HTTP:x-xsrf-token} .
     RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Serve install.php directly (bypass Laravel)
+    RewriteRule ^install\.php$ - [L,NC]
 
     # Static assets from public/ subfolder
     RewriteRule ^(css|js|images|storage|build)/(.*)$ public/$1/$2 [L]
