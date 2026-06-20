@@ -31,10 +31,10 @@ class DatabaseSeeder extends Seeder
 
         // Super Admin
         $superAdmin = User::firstOrCreate(
-            ['email' => env('SUPER_ADMIN_EMAIL', 'nizari@nizari.net')],
+            ['email' => env('SUPER_ADMIN_EMAIL', 'nizarirachid@gmail.com')],
             [
-                'name'                  => env('SUPER_ADMIN_NAME', 'النزاري رشيد'),
-                'email'                 => env('SUPER_ADMIN_EMAIL', 'nizari@nizari.net'),
+                'name'                  => env('SUPER_ADMIN_NAME', 'NIZARI Rachid'),
+                'email'                 => env('SUPER_ADMIN_EMAIL', 'nizarirachid@gmail.com'),
                 'password'              => Hash::make(env('SUPER_ADMIN_PASSWORD', 'Fatima@1977')),
                 'status'                => 'active',
                 'force_password_change' => true,

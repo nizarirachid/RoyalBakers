@@ -55,6 +55,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [App\Http\Controllers\Auth\RegisterController::class, 'register']);
 });
 
+// OTP verification (no auth required — user is mid-login)
+Route::get('/otp', [App\Http\Controllers\Auth\LoginController::class, 'showOtp'])->name('otp.show');
+Route::post('/otp/verify', [App\Http\Controllers\Auth\LoginController::class, 'verifyOtp'])->name('otp.verify');
+Route::post('/otp/resend', [App\Http\Controllers\Auth\LoginController::class, 'resendOtp'])->name('otp.resend');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
