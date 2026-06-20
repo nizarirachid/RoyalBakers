@@ -63,14 +63,14 @@ class DatabaseSeeder extends Seeder
             'site_name_ar'          => 'النزاري للخط العربي',
             'site_name_fr'          => 'NIZARI Calligraphie',
             'site_name_en'          => 'NIZARI Arabic Calligraphy',
-            'contact_email'         => 'contact@nizari.net',
-            'contact_phone'         => '+212 600 000 000',
-            'contact_address_ar'    => 'المغرب - الرباط',
+            'contact_email'         => 'nizarirachid@gmail.com',
+            'contact_phone'         => '+212 663 690 212',
+            'contact_address_ar'    => 'النزاري رشيد، صندوق البريد 29 اثنين أوريكة، إقليم الحوز، مراكش، المغرب',
             'site_description_ar'   => 'فن الخط العربي الأصيل — لوحات فنية مخصصة تجمع بين الجماليات الأندلسية والزليج المغربي',
             'facebook_url'          => 'https://facebook.com/nizaricalligraphy',
             'instagram_url'         => 'https://instagram.com/nizaricalligraphy',
             'youtube_url'           => 'https://youtube.com/@nizaricalligraphy',
-            'whatsapp_number'       => '+212600000000',
+            'whatsapp_number'       => '+212663690212',
         ];
         foreach ($defaultSettings as $key => $value) {
             Setting::firstOrCreate(['key' => $key], ['value' => $value]);

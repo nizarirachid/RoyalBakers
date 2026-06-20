@@ -220,7 +220,7 @@
                             <a href="#" class="social-link" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                             <a href="#" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
                             <a href="#" class="social-link" title="YouTube"><i class="fab fa-youtube"></i></a>
-                            <a href="#" class="social-link" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="https://wa.me/212663690212" class="social-link" title="WhatsApp" target="_blank"><i class="fab fa-whatsapp"></i></a>
                             <a href="#" class="social-link" title="TikTok"><i class="fab fa-tiktok"></i></a>
                         </div>
                     </div>
@@ -261,15 +261,15 @@
                     <ul class="footer-contact">
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>مراكش، المغرب</span>
+                            <span>النزاري رشيد، ص.ب 29 أوريكة، إقليم الحوز، مراكش</span>
                         </li>
                         <li>
                             <i class="fas fa-envelope"></i>
-                            <a href="mailto:contact@nizari.net">contact@nizari.net</a>
+                            <a href="mailto:nizarirachid@gmail.com">nizarirachid@gmail.com</a>
                         </li>
                         <li>
                             <i class="fab fa-whatsapp"></i>
-                            <a href="https://wa.me/212600000000">+212 6XX XXX XXX</a>
+                            <a href="https://wa.me/212663690212">+212 663 690 212</a>
                         </li>
                     </ul>
 

@@ -27,7 +27,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">الموقع</h6>
-                            <p class="text-muted mb-0">مراكش، المغرب</p>
+                            <p class="text-muted mb-0">النزاري رشيد، صندوق البريد 29 اثنين أوريكة، إقليم الحوز، مراكش، المغرب</p>
                         </div>
                     </div>
 
@@ -37,7 +37,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">البريد الإلكتروني</h6>
-                            <a href="mailto:contact@nizari.net" class="text-muted">contact@nizari.net</a>
+                            <a href="mailto:nizarirachid@gmail.com" class="text-muted">nizarirachid@gmail.com</a>
                         </div>
                     </div>
 
@@ -47,7 +47,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">واتساب</h6>
-                            <a href="https://wa.me/212600000000" class="text-muted">+212 6XX XXX XXX</a>
+                            <a href="https://wa.me/212663690212" class="text-muted">+212 663 690 212</a>
                         </div>
                     </div>
 
