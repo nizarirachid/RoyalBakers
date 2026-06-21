@@ -183,7 +183,7 @@
                     <i class="fas fa-expand" id="fullscreenIcon" aria-hidden="true"></i>
                 </button>
 
-                @auth
+                @if(auth()->check())
                     <div class="dropdown">
                         <button class="btn btn-sm btn-gold dropdown-toggle" data-bs-toggle="dropdown">
                             <i class="fas fa-user"></i>
@@ -216,7 +216,7 @@
                     <a href="{{ route('order.create') }}" class="btn btn-sm btn-gold">
                         {{ __('messages.order') }}
                     </a>
-                @endauth
+                @endif
             </div>
         </div>
     </div>
