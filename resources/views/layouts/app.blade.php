@@ -44,7 +44,7 @@
     {{-- Schema.org --}}
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
+        "@@context": "https://schema.org",
         "@type": "Person",
         "name": "NIZARI Rachid",
         "jobTitle": "Calligrapher",
