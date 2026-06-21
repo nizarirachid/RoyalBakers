@@ -1,8 +1,8 @@
 <?php
 /**
  * NIZARI Rachid — Web Installer
- * URL: /install
- * This file deletes itself after successful installation.
+ * URL: /install.php
+ * Works without exec() — uses Laravel PHP API as fallback.
  */
 
 define('BASE', realpath(__DIR__));
@@ -46,6 +46,17 @@ $D = [
     'SUPER_ADMIN_PASSWORD' => 'Fatima@1977',
 ];
 
+// Generate APP_KEY in pure PHP — no artisan needed
+function generateAppKey(): string {
+    return 'base64:' . base64_encode(random_bytes(32));
+}
+
+function execAvailable(): bool {
+    if (!function_exists('exec')) return false;
+    $disabled = array_map('trim', explode(',', (string)ini_get('disable_functions')));
+    return !in_array('exec', $disabled, true);
+}
+
 function phpBin(): string {
     foreach ([PHP_BINARY, 'php8.3', 'php83', 'php'] as $b) {
         if ($b && @shell_exec($b . ' -r "echo 1;" 2>/dev/null') === '1') return $b;
@@ -53,18 +64,55 @@ function phpBin(): string {
     return 'php';
 }
 
-function runArtisan(string $cmd): array {
-    $bin     = phpBin();
-    $artisan = escapeshellarg(BASE . '/artisan');
-    $full    = "$bin $artisan $cmd 2>&1";
-    exec($full, $out, $code);
-    return ['ok' => $code === 0, 'out' => implode("\n", $out)];
+// Laravel app singleton — bootstrap once per request
+function getLaravelApp(): object {
+    static $app = null;
+    if ($app === null) {
+        if (!class_exists('Illuminate\\Foundation\\Application')) {
+            require_once BASE . '/vendor/autoload.php';
+        }
+        if (function_exists('opcache_reset')) opcache_reset();
+        $app = require BASE . '/bootstrap/app.php';
+    }
+    return $app;
 }
 
-function execAvailable(): bool {
-    if (!function_exists('exec')) return false;
-    $disabled = array_map('trim', explode(',', (string)ini_get('disable_functions')));
-    return !in_array('exec', $disabled, true);
+function runArtisan(string $cmd): array {
+    // Method 1: exec() shell command
+    if (execAvailable()) {
+        $bin     = phpBin();
+        $artisan = escapeshellarg(BASE . '/artisan');
+        exec("$bin $artisan $cmd 2>&1", $out, $code);
+        return ['ok' => $code === 0, 'out' => implode("\n", $out)];
+    }
+
+    // Method 2: Laravel PHP API (no exec needed)
+    try {
+        $app    = getLaravelApp();
+        $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+
+        $parts   = preg_split('/\s+/', trim($cmd));
+        $command = array_shift($parts);
+        $args    = [];
+        foreach ($parts as $part) {
+            if (str_starts_with($part, '--')) {
+                $flag = substr($part, 2);
+                if (str_contains($flag, '=')) {
+                    [$k, $v] = explode('=', $flag, 2);
+                    $args["--$k"] = $v;
+                } else {
+                    $args["--$flag"] = true;
+                }
+            }
+        }
+
+        ob_start();
+        $status = $kernel->call($command, $args);
+        $output = ob_get_clean();
+        return ['ok' => $status === 0, 'out' => $output ?: 'تم'];
+    } catch (\Throwable $e) {
+        return ['ok' => false, 'out' => $e->getMessage()];
+    }
 }
 
 function requirements(): array {
@@ -82,7 +130,8 @@ function requirements(): array {
         $list[] = ['n' => "صلاحية الكتابة: $name", 'ok' => is_writable($path), 'h' => "chmod -R 775 $name"];
     }
     $list[] = ['n' => 'مجلد vendor موجود', 'ok' => file_exists(BASE . '/vendor/autoload.php'), 'h' => 'نفّذ: composer install --no-dev'];
-    $list[] = ['n' => 'exec() مفعّل', 'ok' => execAvailable(), 'h' => 'يجب تفعيل exec() في PHP'];
+    $execOk = execAvailable();
+    $list[] = ['n' => 'exec() — ' . ($execOk ? 'متوفر' : 'غير متوفر، سيُستخدم PHP API بديلاً ✓'), 'ok' => true, 'h' => ''];
     return $list;
 }
 
@@ -93,7 +142,7 @@ function allOk(array $list): bool {
 
 function writeEnv(array $p): bool {
     if (!file_exists(ENV_EXAMPLE)) return false;
-    $env = file_get_contents(ENV_EXAMPLE);
+    $env    = file_get_contents(ENV_EXAMPLE);
     $quoted = ['APP_NAME', 'MAIL_FROM_ADDRESS', 'SUPER_ADMIN_NAME', 'SUPER_ADMIN_EMAIL', 'SUPER_ADMIN_PASSWORD'];
     foreach ($p as $key => $val) {
         $val = str_replace('"', '\\"', $val);
@@ -115,21 +164,40 @@ if ($step === 'install' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach (array_keys($D) as $k) {
         if (isset($_POST[$k])) $p[$k] = trim($_POST[$k]);
     }
+
+    // 1. Write .env
     if (!writeEnv($p)) {
         $log[] = ['label' => 'كتابة ملف .env', 'ok' => false, 'out' => 'فشل — تأكد صلاحيات الكتابة (chmod 755)'];
         $step = 'done'; goto finish;
     }
     $log[] = ['label' => 'كتابة ملف .env', 'ok' => true, 'out' => 'تم بنجاح'];
-    $r = runArtisan('key:generate --force');
-    $log[] = ['label' => 'توليد APP_KEY', 'ok' => $r['ok'], 'out' => $r['out']];
-    if (!$r['ok']) { $step = 'done'; goto finish; }
-    $r = runArtisan('storage:link --force');
-    $log[] = ['label' => 'ربط storage', 'ok' => $r['ok'], 'out' => $r['out']];
+
+    // 2. Generate APP_KEY in pure PHP (no artisan/exec needed)
+    $envContent = file_get_contents(ENV_FILE);
+    $key        = generateAppKey();
+    $envContent = preg_replace('/^APP_KEY=.*/m', 'APP_KEY=' . $key, $envContent);
+    file_put_contents(ENV_FILE, $envContent);
+    $log[] = ['label' => 'توليد APP_KEY', 'ok' => true, 'out' => 'تم بنجاح (PHP مباشر)'];
+
+    // 3. Storage symlink via PHP (no artisan needed)
+    $target = BASE . '/storage/app/public';
+    $link   = BASE . '/public/storage';
+    if (file_exists($link) || is_link($link)) {
+        $log[] = ['label' => 'ربط storage', 'ok' => true, 'out' => 'موجود مسبقاً'];
+    } else {
+        $linkedOk = @symlink($target, $link);
+        $log[] = ['label' => 'ربط storage', 'ok' => $linkedOk, 'out' => $linkedOk ? 'تم' : 'تحذير: symlink فشل — يمكن المتابعة'];
+    }
+
+    // 4. Migrate + seed via Laravel PHP API or exec
     $r = runArtisan('migrate --seed --force');
     $log[] = ['label' => 'قاعدة البيانات والبيانات الأولية', 'ok' => $r['ok'], 'out' => $r['out']];
     if (!$r['ok']) { $step = 'done'; goto finish; }
+
+    // 5. Optimize cache
     $r = runArtisan('optimize');
     $log[] = ['label' => 'تحسين الأداء', 'ok' => $r['ok'], 'out' => $r['out']];
+
     @unlink(__FILE__);
     $log[] = ['label' => 'حذف install.php للأمان', 'ok' => true, 'out' => 'تم'];
     $result = ['ok' => true, 'url' => $p['APP_URL']];
