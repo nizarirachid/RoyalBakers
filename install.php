@@ -14,7 +14,13 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 session_start();
 
-if (file_exists(ENV_FILE) && !isset($_GET['force'])) {
+// Persist force flag across page transitions via session
+if (isset($_GET['force'])) {
+    $_SESSION['installer_force'] = true;
+}
+$forced = $_SESSION['installer_force'] ?? false;
+
+if (file_exists(ENV_FILE) && !$forced) {
     $env = file_get_contents(ENV_FILE);
     if (strpos($env, 'APP_KEY=base64:') !== false) {
         header('Location: /');
