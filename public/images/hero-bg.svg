@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <pattern id="zellige" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+      <!-- Zellige tile pattern -->
+      <rect width="80" height="80" fill="#1B4332"/>
+      <polygon points="40,5 75,20 75,60 40,75 5,60 5,20" fill="none" stroke="#C9A84C" stroke-width="0.8" opacity="0.3"/>
+      <polygon points="40,15 65,25 65,55 40,65 15,55 15,25" fill="none" stroke="#C9A84C" stroke-width="0.5" opacity="0.2"/>
+      <circle cx="40" cy="40" r="4" fill="#C9A84C" opacity="0.15"/>
+    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#1B4332;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#0a1f17;stop-opacity:0.9"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#zellige)"/>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+  <!-- Decorative calligraphy curves -->
+  <path d="M 400 540 Q 500 400 700 420 Q 900 440 960 540 Q 1020 640 1220 620 Q 1420 600 1520 540"
+        fill="none" stroke="#C9A84C" stroke-width="2" opacity="0.2"/>
+  <path d="M 300 600 Q 500 500 700 510 Q 900 520 960 600 Q 1020 680 1220 670 Q 1420 660 1600 600"
+        fill="none" stroke="#C9A84C" stroke-width="1.5" opacity="0.15"/>
+</svg>
