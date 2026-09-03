@@ -81,9 +81,39 @@ if (!request()->isSecure() && app()->environment('production')) {
 ### Cloudflare (مجاني)
 1. أضف نطاقك في Cloudflare
 2. غيّر nameservers في سجلات DNS
-3. فعّل "Full (strict)" SSL mode
-4. فعّل "Minify" للـ CSS, JS, HTML
-5. أضف Page Rule لتخزين الأصول الثابتة
+3. **ثبّت شهادة SSL على السيرفر الأصلي أولاً** (انظر التحذير أسفله)
+4. بعدها فقط: فعّل "Full (strict)" SSL mode
+5. فعّل "Minify" للـ CSS, JS, HTML
+6. أضف Page Rule لتخزين الأصول الثابتة
+
+> ⚠️ **تحذير — خطأ 526 (Invalid SSL certificate)**
+>
+> وضع **"Full (strict)"** يجعل Cloudflare يرفض الاتصال بالسيرفر الأصلي
+> إذا لم تكن عليه شهادة SSL صالحة وغير منتهية ومطابقة لاسم النطاق.
+> النتيجة: الموقع كله يتوقف بخطأ **526** رغم أن الكود سليم تماماً.
+>
+> **الترتيب الصحيح:**
+> 1. ابدأ بوضع **"Full"** (وليس strict) — الموقع يعمل مباشرة.
+> 2. ثبّت شهادة صالحة على السيرفر:
+>    - **الأسهل والأفضل:** Cloudflare → SSL/TLS → Origin Server →
+>      *Create Certificate* (مجانية وصالحة 15 سنة، ولا تحتاج تحقّقاً)،
+>      ثم الصقها في لوحة الاستضافة (DirectAdmin → SSL Certificates →
+>      *Paste a pre-generated certificate and key*).
+>    - **أو** Let's Encrypt من لوحة الاستضافة. ملاحظة: قد يفشل التحقق
+>      والسحابة البرتقالية مفعّلة، فأطفئها مؤقتاً (DNS only) أثناء الإصدار.
+> 3. تأكد أن الشهادة تغطي `nizari.net` و `www.nizari.net`
+>    و `*.nizari.net` (للنطاقات الفرعية مثل `rachid.nizari.net`).
+> 4. عُد الآن إلى **"Full (strict)"**.
+>
+> **للتشخيص السريع:**
+> ```bash
+> # 526 = الشهادة على السيرفر الأصلي غير صالحة
+> curl -sSI https://nizari.net | head -1
+>
+> # فحص الشهادة على السيرفر الأصلي مباشرة (تجاوز Cloudflare)
+> openssl s_client -connect ORIGIN_IP:443 -servername nizari.net \
+>   </dev/null 2>/dev/null | openssl x509 -noout -subject -issuer -dates
+> ```
 
 ## المراقبة والأداء
 
